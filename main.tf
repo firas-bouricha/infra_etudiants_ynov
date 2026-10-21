@@ -47,6 +47,15 @@ resource "proxmox_virtual_environment_acl" "pool" {
   group_id  = proxmox_virtual_environment_group.equipe[each.key].group_id
   propagate = true
 }
+# 4a-bis. Droit de VOIR son pool (sinon il n'apparaît pas dans la liste de création de VM)
+resource "proxmox_virtual_environment_acl" "pool_lecture" {
+  for_each = var.teams
+
+  path      = "/pool/${each.key}"
+  role_id   = "PVEPoolUser"
+  group_id  = proxmox_virtual_environment_group.equipe[each.key].group_id
+  propagate = true
+}
 
 # 4b. Droits sur le stockage : nécessaires pour créer des disques et lire les ISO.
 #     (équipes x stockages)
@@ -104,7 +113,7 @@ resource "proxmox_virtual_environment_acl" "reseau_wan" {
   group_id  = proxmox_virtual_environment_group.equipe[each.key].group_id
   propagate = true
 
-  depends_on = [proxmox_virtual_environment_sdn_vnet.wan]
+    depends_on = [proxmox_virtual_environment_sdn_applier.appliquer]
 }
 
 resource "proxmox_virtual_environment_acl" "reseau_lan" {
@@ -115,8 +124,8 @@ resource "proxmox_virtual_environment_acl" "reseau_lan" {
   group_id  = proxmox_virtual_environment_group.equipe[each.key].group_id
   propagate = true
 
-  depends_on = [proxmox_virtual_environment_sdn_vnet.lan]
-}
+  depends_on = [proxmox_virtual_environment_sdn_applier.appliquer]
+  }
 
 # Applique la configuration réseau (équivalent du bouton "Apply" dans Datacenter > SDN)
 resource "proxmox_virtual_environment_sdn_applier" "appliquer" {
