@@ -1,0 +1,6 @@
+# Secrets et état Terraform : ne jamais publier
+.env
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
